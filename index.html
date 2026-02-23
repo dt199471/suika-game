@@ -7,6 +7,105 @@
 <script src="https://cdn.jsdelivr.net/npm/poly-decomp@0.3.0/build/decomp.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 <style>
+  /* ============================================================
+   * DESIGN TOKENS — CSS Custom Properties
+   * Sync source: tokens.json (Tokens Studio for Figma)
+   * To update: edit tokens.json in Figma → export → paste here
+   * ============================================================ */
+  :root {
+    /* Background */
+    --color-bg-wall-top:     #f5c050;
+    --color-bg-wall-mid1:    #f0a83a;
+    --color-bg-wall-mid2:    #e8963a;
+    --color-bg-wall-mid3:    #d4782a;
+    --color-bg-wall-bottom:  #c06828;
+    --color-bg-table-top:    #f0d898;
+    --color-bg-table-mid:    #e0c880;
+    --color-bg-table-bottom: #d4b86a;
+
+    /* UI Colors */
+    --color-accent:              #ffd060;
+    --color-score-panel-bg:      rgba(200, 100, 20, 0.4);
+    --color-score-panel-border:  rgba(255, 220, 120, 0.5);
+    --color-score-value:         #ffffff;
+    --color-score-best-label:    rgba(255, 210, 130, 0.8);
+    --color-score-best-value:    rgba(255, 240, 200, 0.9);
+
+    /* Game Over */
+    --color-gameover-overlay:    rgba(0, 0, 0, 0.6);
+    --color-gameover-box-top:    #f5e6c8;
+    --color-gameover-box-bottom: #e8d4a8;
+    --color-gameover-title:      #c0392b;
+    --color-gameover-score:      #d4903e;
+    --color-gameover-text:       #8b7355;
+    --color-gameover-new-record: #e74c3c;
+
+    /* Button */
+    --color-button-top:    #f7931e;
+    --color-button-bottom: #e67e22;
+
+    /* Fruit Colors */
+    --color-cherry:           #e74c3c;
+    --color-cherry-light:     #ff6b6b;
+    --color-cherry-dark:      #c0392b;
+    --color-strawberry:       #e91e8c;
+    --color-strawberry-light: #ff69b4;
+    --color-strawberry-dark:  #c71585;
+    --color-grape:            #8e44ad;
+    --color-grape-light:      #a855f7;
+    --color-grape-dark:       #6b21a8;
+    --color-dekopon:          #e67e22;
+    --color-dekopon-light:    #fbbf24;
+    --color-dekopon-dark:     #d97706;
+    --color-persimmon:        #d35400;
+    --color-persimmon-light:  #f97316;
+    --color-persimmon-dark:   #c2410c;
+    --color-apple:            #c0392b;
+    --color-apple-light:      #ef4444;
+    --color-apple-dark:       #991b1b;
+    --color-pear:             #a3be5e;
+    --color-pear-light:       #bef264;
+    --color-pear-dark:        #65a30d;
+    --color-peach:            #f48fb1;
+    --color-peach-light:      #f9a8d4;
+    --color-peach-dark:       #ec4899;
+    --color-pineapple:        #f1c40f;
+    --color-pineapple-light:  #fde047;
+    --color-pineapple-dark:   #ca8a04;
+    --color-melon:            #27ae60;
+    --color-melon-light:      #86efac;
+    --color-melon-dark:       #16a34a;
+    --color-watermelon:       #2d8a4e;
+    --color-watermelon-light: #4ade80;
+    --color-watermelon-dark:  #15803d;
+
+    /* Typography */
+    --font-family-base: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    --font-size-xs:   11px;
+    --font-size-sm:   13px;
+    --font-size-base: 14px;
+    --font-size-md:   16px;
+    --font-size-lg:   18px;
+    --font-size-xl:   22px;
+    --font-size-2xl:  28px;
+    --font-size-3xl:  42px;
+    --font-size-4xl:  48px;
+
+    /* Border Radius */
+    --radius-sm:   6px;
+    --radius-md:   18px;
+    --radius-lg:   24px;
+    --radius-full: 30px;
+
+    /* Spacing */
+    --space-xs:  8px;
+    --space-sm:  12px;
+    --space-md:  16px;
+    --space-lg:  20px;
+    --space-xl:  24px;
+    --space-2xl: 30px;
+  }
+
   * {
     margin: 0;
     padding: 0;
@@ -21,7 +120,7 @@
     justify-content: center;
     align-items: flex-start;
     min-height: 100vh;
-    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    font-family: var(--font-family-base);
     overflow: hidden;
     padding-top: 20px;
   }
@@ -33,12 +132,12 @@
     right: 0;
     height: 100vh;
     z-index: -2;
-    background: linear-gradient(180deg, 
-      #f5c050 0%, 
-      #f0a83a 20%, 
-      #e8963a 40%,
-      #d4782a 75%,
-      #c06828 100%
+    background: linear-gradient(180deg,
+      var(--color-bg-wall-top)    0%,
+      var(--color-bg-wall-mid1)   20%,
+      var(--color-bg-wall-mid2)   40%,
+      var(--color-bg-wall-mid3)   75%,
+      var(--color-bg-wall-bottom) 100%
     );
   }
 
@@ -64,7 +163,7 @@
         rgba(160, 120, 60, 0.2) 39px,
         rgba(160, 120, 60, 0.2) 40px
       ),
-      linear-gradient(180deg, #f0d898 0%, #e0c880 30%, #d4b86a 100%);
+      linear-gradient(180deg, var(--color-bg-table-top) 0%, var(--color-bg-table-mid) 30%, var(--color-bg-table-bottom) 100%);
   }
 
   #game-wrapper {
@@ -86,9 +185,9 @@
   }
 
   #score-panel {
-    background: rgba(200, 100, 20, 0.4);
-    border: 2px solid rgba(255, 220, 120, 0.5);
-    border-radius: 18px;
+    background: var(--color-score-panel-bg);
+    border: 2px solid var(--color-score-panel-border);
+    border-radius: var(--radius-md);
     padding: 18px 22px;
     text-align: center;
     backdrop-filter: blur(4px);
@@ -97,35 +196,35 @@
   }
 
   #score-title {
-    font-size: 22px;
+    font-size: var(--font-size-xl);
     font-weight: 900;
-    color: #ffd060;
+    color: var(--color-accent);
     text-shadow: 1px 1px 3px rgba(0,0,0,0.4), 0 0 10px rgba(255,180,0,0.3);
     letter-spacing: 4px;
     margin-bottom: 6px;
   }
 
   #score-value {
-    font-size: 42px;
+    font-size: var(--font-size-3xl);
     font-weight: 900;
-    color: #ffffff;
+    color: var(--color-score-value);
     text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
     line-height: 1.1;
     margin-bottom: 12px;
   }
 
   #best-score-label {
-    font-size: 11px;
+    font-size: var(--font-size-xs);
     font-weight: 700;
-    color: rgba(255, 210, 130, 0.8);
+    color: var(--color-score-best-label);
     letter-spacing: 2px;
     margin-bottom: 2px;
   }
 
   #best-score-value {
-    font-size: 22px;
+    font-size: var(--font-size-xl);
     font-weight: 800;
-    color: rgba(255, 240, 200, 0.9);
+    color: var(--color-score-best-value);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
   }
 
@@ -258,9 +357,9 @@
   }
 
   #next-label {
-    font-size: 18px;
+    font-size: var(--font-size-lg);
     font-weight: 800;
-    color: #ffd060;
+    color: var(--color-accent);
     text-shadow: 1px 1px 3px rgba(0,0,0,0.4), 0 0 10px rgba(255,180,0,0.3);
     letter-spacing: 3px;
   }
@@ -315,9 +414,9 @@
   }
 
   #evolution-label {
-    font-size: 16px;
+    font-size: var(--font-size-md);
     font-weight: 800;
-    color: #ffd060;
+    color: var(--color-accent);
     text-shadow: 1px 1px 3px rgba(0,0,0,0.4), 0 0 10px rgba(255,180,0,0.3);
     letter-spacing: 3px;
   }
@@ -335,7 +434,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--color-gameover-overlay);
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -348,8 +447,8 @@
   }
 
   #game-over-box {
-    background: linear-gradient(180deg, #f5e6c8 0%, #e8d4a8 100%);
-    border-radius: 24px;
+    background: linear-gradient(180deg, var(--color-gameover-box-top) 0%, var(--color-gameover-box-bottom) 100%);
+    border-radius: var(--radius-lg);
     padding: 30px 40px;
     text-align: center;
     box-shadow:
@@ -366,36 +465,36 @@
   }
 
   #game-over-box h2 {
-    color: #c0392b;
-    font-size: 28px;
+    color: var(--color-gameover-title);
+    font-size: var(--font-size-2xl);
     margin-bottom: 8px;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
   }
 
   #game-over-box .final-label {
-    font-size: 14px;
-    color: #8b7355;
+    font-size: var(--font-size-base);
+    color: var(--color-gameover-text);
     font-weight: 700;
     letter-spacing: 2px;
   }
 
   #game-over-box .final-score {
-    font-size: 48px;
+    font-size: var(--font-size-4xl);
     font-weight: 900;
-    color: #d4903e;
+    color: var(--color-gameover-score);
     margin: 6px 0;
     text-shadow: 1px 2px 3px rgba(0,0,0,0.15);
   }
 
   .best-score-line {
-    font-size: 13px;
-    color: #8b7355;
+    font-size: var(--font-size-sm);
+    color: var(--color-gameover-text);
     margin-bottom: 6px;
     font-weight: 600;
   }
 
   .new-record {
-    color: #e74c3c;
+    color: var(--color-gameover-new-record);
     font-weight: 800;
     font-size: 15px;
     animation: pulse 0.8s ease-in-out infinite alternate;
@@ -409,12 +508,12 @@
   #restart-btn {
     margin-top: 16px;
     padding: 12px 40px;
-    font-size: 18px;
+    font-size: var(--font-size-lg);
     font-weight: bold;
-    background: linear-gradient(180deg, #f7931e 0%, #e67e22 100%);
+    background: linear-gradient(180deg, var(--color-button-top) 0%, var(--color-button-bottom) 100%);
     color: white;
     border: 2px solid rgba(180, 100, 20, 0.4);
-    border-radius: 30px;
+    border-radius: var(--radius-full);
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(231, 126, 34, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
     transition: transform 0.15s, box-shadow 0.15s;
@@ -462,7 +561,7 @@
     }
 
     #score-title {
-      font-size: 16px;
+      font-size: var(--font-size-md);
     }
 
     #score-value {
@@ -482,7 +581,7 @@
     #game-container { width: 95vw !important; }
     canvas#gameCanvas { width: 95vw !important; }
     #score-panel { padding: 8px 12px; }
-    #score-title { font-size: 14px; }
+    #score-title { font-size: var(--font-size-base); }
     #score-value { font-size: 24px; }
     #next-bubble-circle { width: 70px; height: 70px; }
     #next-canvas { width: 50px; height: 50px; }
