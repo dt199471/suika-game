@@ -976,6 +976,10 @@
   }
 
   function handleCollision(bodyA, bodyB) {
+    // Bodies.fromVertices creates compound bodies; collision events give sub-parts.
+    // Resolve to the parent body where fruitType and other properties are set.
+    bodyA = bodyA.parent || bodyA;
+    bodyB = bodyB.parent || bodyB;
     if (!bodyA.fruitType && bodyA.fruitType !== 0) return;
     if (!bodyB.fruitType && bodyB.fruitType !== 0) return;
     if (bodyA.isDropping || bodyB.isDropping) return;
