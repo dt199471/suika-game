@@ -475,6 +475,180 @@
     }
   }
 
+  /* === Start Screen === */
+  #start-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(160, 70, 0, 0.4);
+    backdrop-filter: blur(8px);
+  }
+
+  #start-screen.hidden {
+    display: none;
+  }
+
+  .start-box {
+    background: linear-gradient(160deg, rgba(255, 235, 170, 0.97) 0%, rgba(245, 210, 110, 0.97) 100%);
+    border: 3px solid rgba(255, 240, 180, 0.85);
+    border-radius: 28px;
+    padding: 36px 38px 30px;
+    text-align: center;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.5);
+    max-width: 390px;
+    width: 90%;
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .start-title {
+    font-size: 40px;
+    font-weight: 900;
+    color: #3a1a00;
+    text-shadow: 0 2px 0 rgba(255, 200, 80, 0.7), 0 4px 14px rgba(0,0,0,0.2);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .start-subtitle {
+    font-size: 13px;
+    color: #7a4a10;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .start-best {
+    display: inline-block;
+    background: rgba(180, 100, 20, 0.15);
+    border: 1px solid rgba(180, 100, 20, 0.3);
+    border-radius: 12px;
+    padding: 7px 22px;
+    font-size: 14px;
+    color: #5a3000;
+    font-weight: 700;
+    margin-bottom: 22px;
+  }
+
+  .start-best span {
+    font-size: 16px;
+    color: #c05a00;
+  }
+
+  .settings-section {
+    background: rgba(200, 140, 40, 0.1);
+    border: 1px solid rgba(180, 120, 30, 0.25);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+    text-align: left;
+  }
+
+  .settings-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #5a3000;
+    margin-bottom: 14px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .setting-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .setting-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #5a3000;
+    min-width: 88px;
+    flex-shrink: 0;
+  }
+
+  .opt-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .opt-btn {
+    padding: 5px 11px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.55);
+    border: 2px solid rgba(180, 120, 30, 0.3);
+    border-radius: 20px;
+    cursor: pointer;
+    color: #5a3000;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .opt-btn:hover {
+    background: rgba(255, 210, 90, 0.6);
+    border-color: rgba(180, 120, 30, 0.55);
+  }
+
+  .opt-btn.active {
+    background: linear-gradient(180deg, #f7931e 0%, #e67e22 100%);
+    border-color: rgba(180, 80, 0, 0.5);
+    color: white;
+    box-shadow: 0 2px 8px rgba(231, 126, 34, 0.45);
+  }
+
+  #start-btn {
+    width: 100%;
+    padding: 15px 0;
+    font-size: 20px;
+    font-weight: 900;
+    background: linear-gradient(180deg, #f7931e 0%, #e67e22 100%);
+    color: white;
+    border: 2px solid rgba(180, 80, 0, 0.4);
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(231, 126, 34, 0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+    letter-spacing: 2px;
+  }
+
+  #start-btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 28px rgba(231, 126, 34, 0.65);
+  }
+
+  #start-btn:active {
+    transform: scale(0.97);
+  }
+
+  #to-title-btn {
+    margin-top: 10px;
+    padding: 9px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.3);
+    color: #5a3a10;
+    border: 2px solid rgba(180, 120, 30, 0.35);
+    border-radius: 24px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  #to-title-btn:hover {
+    background: rgba(255, 230, 150, 0.5);
+    border-color: rgba(180, 120, 30, 0.6);
+  }
+
   @media (max-width: 420px) {
     body {
       padding-top: 5px;
@@ -494,6 +668,37 @@
 
 <div id="bg-wall"></div>
 <div id="bg-table"></div>
+
+<!-- Start Screen -->
+<div id="start-screen">
+  <div class="start-box">
+    <div class="start-title">🍉 スイカゲーム</div>
+    <div class="start-subtitle">果物を合わせてスイカを作ろう！</div>
+    <div class="start-best">ベストスコア: <span id="start-best-score">0</span></div>
+
+    <div class="settings-section">
+      <div class="settings-title">⚙ 設定</div>
+      <div class="setting-row">
+        <span class="setting-label">難易度</span>
+        <div class="opt-group" id="opt-difficulty">
+          <button class="opt-btn" data-value="easy">かんたん</button>
+          <button class="opt-btn active" data-value="normal">ふつう</button>
+          <button class="opt-btn" data-value="hard">むずかしい</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">ドロップ間隔</span>
+        <div class="opt-group" id="opt-drop-speed">
+          <button class="opt-btn" data-value="slow">ゆっくり</button>
+          <button class="opt-btn active" data-value="normal">ふつう</button>
+          <button class="opt-btn" data-value="fast">はやい</button>
+        </div>
+      </div>
+    </div>
+
+    <button id="start-btn" onclick="window.startGame()">ゲームスタート!</button>
+  </div>
+</div>
 
 <div id="game-wrapper">
   <!-- Left Panel: Score -->
@@ -520,6 +725,7 @@
             <div class="best-score-line" id="go-best-score"></div>
             <div id="new-record-msg" class="new-record" style="display:none;">NEW RECORD!</div>
             <button id="restart-btn" onclick="restartGame()">もう一度あそぶ</button>
+            <button id="to-title-btn" onclick="window.goToTitle()">タイトルへ戻る</button>
           </div>
         </div>
       </div>
@@ -551,7 +757,13 @@
   const WALL_THICKNESS = 15;
   const DANGER_LINE_Y = 80;
   const DROP_AREA_Y = 45;
-  const GAME_OVER_GRACE_MS = 2000;
+  let GAME_OVER_GRACE_MS = 2000;
+  let DROP_COOLDOWN_MS = 500;
+  let CONFIG_GRAVITY = 1.8;
+
+  // ===== Game Loop Control =====
+  let isLoopRunning = false;
+  let gameInitialized = false;
 
   function generateCircleVertices(r, segments) {
     const pts = [];
@@ -742,7 +954,7 @@
     loadBestScore();
 
     engine = Engine.create({
-      gravity: { x: 0, y: 1.8 },
+      gravity: { x: 0, y: CONFIG_GRAVITY },
       positionIterations: 10,
       velocityIterations: 10,
     });
@@ -773,6 +985,8 @@
     updateTablePosition();
     window.addEventListener('resize', updateTablePosition);
 
+    isLoopRunning = true;
+    gameInitialized = true;
     requestAnimationFrame(gameLoop);
   }
 
@@ -862,7 +1076,7 @@
         drawNextPreview();
         drawEvolutionRing();
       }
-    }, 500);
+    }, DROP_COOLDOWN_MS);
   }
 
   // ===== Collision / Merge =====
@@ -1648,6 +1862,7 @@
 
   // ===== Game Loop =====
   function gameLoop(timestamp) {
+    if (!isLoopRunning) return;
     const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
     lastTime = timestamp;
 
@@ -1730,13 +1945,75 @@
 
     document.getElementById('game-over-overlay').classList.remove('show');
     lastTime = performance.now();
+    if (!isLoopRunning) {
+      isLoopRunning = true;
+      requestAnimationFrame(gameLoop);
+    }
+  };
+
+  // ===== Start Screen =====
+  function applySettings() {
+    const difficulty = document.querySelector('#opt-difficulty .opt-btn.active');
+    const dropSpeed = document.querySelector('#opt-drop-speed .opt-btn.active');
+
+    const diffVal = difficulty ? difficulty.dataset.value : 'normal';
+    const speedVal = dropSpeed ? dropSpeed.dataset.value : 'normal';
+
+    if (diffVal === 'easy')   { CONFIG_GRAVITY = 1.2; GAME_OVER_GRACE_MS = 3000; }
+    else if (diffVal === 'hard') { CONFIG_GRAVITY = 2.5; GAME_OVER_GRACE_MS = 1000; }
+    else                       { CONFIG_GRAVITY = 1.8; GAME_OVER_GRACE_MS = 2000; }
+
+    if (speedVal === 'slow')   DROP_COOLDOWN_MS = 700;
+    else if (speedVal === 'fast') DROP_COOLDOWN_MS = 300;
+    else                          DROP_COOLDOWN_MS = 500;
+  }
+
+  function setupOptButtons() {
+    document.querySelectorAll('.opt-group').forEach(group => {
+      group.querySelectorAll('.opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          group.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
+    });
+  }
+
+  function showStartScreen() {
+    try {
+      const saved = localStorage.getItem('suika_best_score');
+      document.getElementById('start-best-score').textContent = saved ? saved : '0';
+    } catch(e) {}
+    document.getElementById('start-screen').classList.remove('hidden');
+  }
+
+  window.startGame = function() {
+    applySettings();
+    document.getElementById('start-screen').classList.add('hidden');
+    if (!gameInitialized) {
+      init();
+    } else {
+      if (engine) engine.gravity.y = CONFIG_GRAVITY;
+      window.restartGame();
+    }
+  };
+
+  window.goToTitle = function() {
+    isLoopRunning = false;
+    document.getElementById('game-over-overlay').classList.remove('show');
+    showStartScreen();
   };
 
   // ===== Start =====
+  function onDOMReady() {
+    setupOptButtons();
+    showStartScreen();
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', onDOMReady);
   } else {
-    init();
+    onDOMReady();
   }
 })();
 </script>
