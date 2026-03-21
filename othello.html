@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>オセロ 🎮</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #1a1a4e 0%, #16213e 50%, #0f3460 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 18px 10px 30px;
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px);
+    background-size: 55px 55px;
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === Start Screen === */
+  #start-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(8, 8, 28, 0.75);
+    backdrop-filter: blur(10px);
+  }
+
+  #start-screen.hidden {
+    display: none;
+  }
+
+  .start-box {
+    background: linear-gradient(160deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.07) 100%);
+    border: 2px solid rgba(255,255,255,0.22);
+    border-radius: 28px;
+    padding: 36px 40px 30px;
+    text-align: center;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.15);
+    max-width: 400px;
+    width: 90%;
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    color: white;
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes popIn {
+    0%   { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+
+  .start-title {
+    font-size: 46px;
+    font-weight: 900;
+    margin-bottom: 6px;
+    text-shadow: 0 0 24px rgba(120, 200, 255, 0.9), 0 2px 6px rgba(0,0,0,0.4);
+    line-height: 1.2;
+  }
+
+  .start-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+
+  .settings-section {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    padding: 18px 20px;
+    margin-bottom: 22px;
+    text-align: left;
+  }
+
+  .settings-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 16px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .setting-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .setting-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.8);
+    min-width: 84px;
+    flex-shrink: 0;
+  }
+
+  .opt-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .opt-btn {
+    padding: 6px 13px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.8);
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .opt-btn:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  .opt-btn.active {
+    background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%);
+    border-color: rgba(167,139,250,0.7);
+    color: white;
+    box-shadow: 0 2px 10px rgba(124,58,237,0.55);
+  }
+
+  #start-btn {
+    width: 100%;
+    padding: 16px 0;
+    font-size: 20px;
+    font-weight: 900;
+    background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%);
+    color: white;
+    border: 2px solid rgba(167,139,250,0.55);
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 5px 25px rgba(124,58,237,0.55), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+    letter-spacing: 2px;
+  }
+
+  #start-btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 32px rgba(124,58,237,0.7);
+  }
+
+  #start-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* === Main Game UI === */
+  #game-ui {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  #header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    color: white;
+  }
+
+  #header h1 {
+    font-size: 26px;
+    font-weight: 900;
+    text-shadow: 0 0 16px rgba(150,200,255,0.8);
+  }
+
+  #menu-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  #menu-btn:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* Score bar */
+  #score-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .score-card {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    padding: 12px 14px;
+    text-align: center;
+    color: white;
+    position: relative;
+    transition: all 0.3s;
+    overflow: visible;
+  }
+
+  .score-card.active-turn {
+    border-color: rgba(255,220,50,0.75);
+    background: rgba(255,220,50,0.12);
+    box-shadow: 0 0 18px rgba(255,220,50,0.3);
+  }
+
+  .score-card.active-turn::after {
+    content: '▼';
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    color: #ffd700;
+    animation: bounce 0.6s ease-in-out infinite alternate;
+  }
+
+  @keyframes bounce {
+    from { transform: translateX(-50%) translateY(0); }
+    to   { transform: translateX(-50%) translateY(5px); }
+  }
+
+  .score-player-name {
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.8;
+    margin-bottom: 4px;
+  }
+
+  .score-piece-icon {
+    font-size: 26px;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  .score-count {
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .score-vs {
+    font-size: 20px;
+    color: rgba(255,255,255,0.45);
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  /* Turn message */
+  #turn-message {
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.92);
+    text-align: center;
+    min-height: 26px;
+  }
+
+  /* Board */
+  #board-wrapper {
+    background: #1b5e2e;
+    border: 5px solid #0d3d1a;
+    border-radius: 14px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.55), inset 0 0 30px rgba(0,0,0,0.2);
+    padding: 8px;
+  }
+
+  #board {
+    display: grid;
+    grid-template-columns: repeat(8, 56px);
+    gap: 4px;
+    background: #0d3d1a;
+    border-radius: 6px;
+  }
+
+  .cell {
+    width: 56px;
+    height: 56px;
+    background: #2e7d46;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.12s;
+  }
+
+  .cell:hover {
+    background: #388e52;
+  }
+
+  .cell.valid-hint::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: rgba(255,230,50,0.55);
+    border-radius: 50%;
+    animation: hintPulse 1s ease-in-out infinite;
+    z-index: 1;
+  }
+
+  @keyframes hintPulse {
+    0%, 100% { transform: scale(1);   opacity: 0.55; }
+    50%       { transform: scale(1.3); opacity: 0.9; }
+  }
+
+  .piece {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    position: absolute;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.45), inset 0 2px 0 rgba(255,255,255,0.35);
+  }
+
+  .piece.player1 {
+    background: radial-gradient(circle at 36% 36%, #ff8fab, #e63950);
+  }
+
+  .piece.player2 {
+    background: radial-gradient(circle at 36% 36%, #74b9ff, #1864d6);
+  }
+
+  .piece.just-placed {
+    animation: placePiece 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes placePiece {
+    0%   { transform: scale(0) rotate(-180deg); opacity: 0.5; }
+    100% { transform: scale(1) rotate(0deg);    opacity: 1; }
+  }
+
+  .piece.flip-out {
+    animation: flipOut 0.18s ease-in forwards;
+  }
+
+  .piece.flip-in {
+    animation: flipIn 0.18s ease-out forwards;
+  }
+
+  @keyframes flipOut {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+  }
+
+  @keyframes flipIn {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  /* Game Over Overlay */
+  #game-over-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: rgba(8,8,28,0.78);
+    backdrop-filter: blur(8px);
+    justify-content: center;
+    align-items: center;
+  }
+
+  #game-over-overlay.show {
+    display: flex;
+  }
+
+  .game-over-box {
+    background: linear-gradient(160deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.07) 100%);
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 28px;
+    padding: 40px 36px 32px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 12px 50px rgba(0,0,0,0.55);
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 340px;
+    width: 90%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .winner-emoji {
+    font-size: 68px;
+    margin-bottom: 12px;
+    display: block;
+    animation: wiggle 0.7s ease-in-out infinite alternate;
+  }
+
+  @keyframes wiggle {
+    from { transform: rotate(-8deg) scale(1); }
+    to   { transform: rotate(8deg) scale(1.08); }
+  }
+
+  .winner-text {
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+
+  .final-scores {
+    font-size: 16px;
+    margin-bottom: 28px;
+    opacity: 0.85;
+    line-height: 2;
+  }
+
+  .go-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 0;
+    font-size: 17px;
+    font-weight: 800;
+    border-radius: 26px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.15s;
+    margin-bottom: 10px;
+  }
+
+  .go-btn:hover  { transform: scale(1.04); }
+  .go-btn:active { transform: scale(0.97); }
+  .go-btn:last-child { margin-bottom: 0; }
+
+  .go-btn-primary {
+    background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%);
+    color: white;
+    border: 2px solid rgba(167,139,250,0.55);
+    box-shadow: 0 4px 18px rgba(124,58,237,0.5);
+  }
+
+  .go-btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 2px solid rgba(255,255,255,0.25);
+  }
+
+  /* Pass overlay */
+  #pass-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 140;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  #pass-overlay.show {
+    display: flex;
+  }
+
+  .pass-box {
+    background: rgba(20, 20, 60, 0.9);
+    border: 2px solid rgba(255,220,50,0.6);
+    border-radius: 20px;
+    padding: 20px 36px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.5);
+    animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 1;
+  }
+
+  .pass-emoji { font-size: 40px; display: block; margin-bottom: 6px; }
+  .pass-text  { font-size: 18px; font-weight: 800; }
+
+  /* Confetti */
+  .confetti {
+    position: fixed;
+    pointer-events: none;
+    animation: confettiFall linear forwards;
+    z-index: 300;
+  }
+
+  @keyframes confettiFall {
+    0%   { transform: translateY(-30px) rotate(0deg);   opacity: 1; }
+    100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Responsive */
+  @media (max-width: 510px) {
+    #board {
+      grid-template-columns: repeat(8, calc((100vw - 70px) / 8));
+    }
+    .cell {
+      width: calc((100vw - 70px) / 8);
+      height: calc((100vw - 70px) / 8);
+    }
+    .piece {
+      width: calc((100vw - 70px) / 8 - 10px);
+      height: calc((100vw - 70px) / 8 - 10px);
+    }
+    .cell.valid-hint::before {
+      width: 14px;
+      height: 14px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Start Screen -->
+<div id="start-screen">
+  <div class="start-box">
+    <div class="start-title">⚫⚪ オセロ</div>
+    <div class="start-subtitle">ひっくり返してたくさんとろう！</div>
+
+    <div class="settings-section">
+      <div class="settings-title">⚙ せってい</div>
+      <div class="setting-row">
+        <span class="setting-label">あそびかた</span>
+        <div class="opt-group" id="opt-mode">
+          <button class="opt-btn active" data-value="vs-cpu">コンピュータと</button>
+          <button class="opt-btn" data-value="vs-human">ふたりで</button>
+        </div>
+      </div>
+      <div class="setting-row" id="difficulty-row">
+        <span class="setting-label">むずかしさ</span>
+        <div class="opt-group" id="opt-difficulty">
+          <button class="opt-btn" data-value="easy">かんたん</button>
+          <button class="opt-btn active" data-value="normal">ふつう</button>
+          <button class="opt-btn" data-value="hard">むずかしい</button>
+        </div>
+      </div>
+    </div>
+
+    <button id="start-btn" onclick="window.startOthello()">ゲームスタート! 🎮</button>
+  </div>
+</div>
+
+<!-- Pass Overlay -->
+<div id="pass-overlay">
+  <div class="pass-box">
+    <span class="pass-emoji">😅</span>
+    <div class="pass-text" id="pass-text">おけるばしょがない！パス！</div>
+  </div>
+</div>
+
+<!-- Game Over Overlay -->
+<div id="game-over-overlay">
+  <div class="game-over-box">
+    <span class="winner-emoji" id="winner-emoji">🎉</span>
+    <div class="winner-text" id="winner-text"></div>
+    <div class="final-scores" id="final-scores"></div>
+    <button class="go-btn go-btn-primary" onclick="window.restartOthello()">もう一度あそぶ</button>
+    <button class="go-btn go-btn-secondary" onclick="window.showOthelloMenu()">メニューへもどる</button>
+  </div>
+</div>
+
+<!-- Main Game UI -->
+<div id="game-ui">
+  <div id="header">
+    <h1>⚫⚪ オセロ</h1>
+    <button id="menu-btn" onclick="window.showOthelloMenu()">メニュー</button>
+  </div>
+
+  <div id="score-bar">
+    <div class="score-card" id="score-p1">
+      <div class="score-player-name" id="p1-name">あなた</div>
+      <div class="score-piece-icon">🔴</div>
+      <div class="score-count" id="count-p1">2</div>
+    </div>
+    <div class="score-vs">VS</div>
+    <div class="score-card" id="score-p2">
+      <div class="score-player-name" id="p2-name">コンピュータ</div>
+      <div class="score-piece-icon">🔵</div>
+      <div class="score-count" id="count-p2">2</div>
+    </div>
+  </div>
+
+  <div id="turn-message">スタートしよう！</div>
+
+  <div id="board-wrapper">
+    <div id="board"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // ===== Constants =====
+  const SIZE = 8;
+  const DIRS = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+
+  // Positional weight table for AI (corners are most valuable)
+  const POS_WEIGHTS = [
+    [100,-20, 10,  5,  5, 10,-20, 100],
+    [-20,-50, -2, -2, -2, -2,-50, -20],
+    [ 10, -2, -1, -1, -1, -1, -2,  10],
+    [  5, -2, -1, -1, -1, -1, -2,   5],
+    [  5, -2, -1, -1, -1, -1, -2,   5],
+    [ 10, -2, -1, -1, -1, -1, -2,  10],
+    [-20,-50, -2, -2, -2, -2,-50, -20],
+    [100,-20, 10,  5,  5, 10,-20, 100],
+  ];
+
+  // ===== Game State =====
+  let board = [];
+  let currentPlayer = 1;
+  let gameMode = 'vs-cpu';
+  let difficulty = 'normal';
+  let isGameOver = false;
+  let isAnimating = false;
+  let isCpuThinking = false;
+
+  // ===== Board Logic =====
+  function createBoard() {
+    const b = Array.from({length: SIZE}, () => Array(SIZE).fill(0));
+    b[3][3] = 2; b[4][4] = 2;
+    b[3][4] = 1; b[4][3] = 1;
+    return b;
+  }
+
+  function getFlips(b, row, col, player) {
+    if (b[row][col] !== 0) return [];
+    const opp = player === 1 ? 2 : 1;
+    const flips = [];
+    for (const [dr, dc] of DIRS) {
+      let r = row + dr, c = col + dc;
+      const line = [];
+      while (r >= 0 && r < SIZE && c >= 0 && c < SIZE && b[r][c] === opp) {
+        line.push([r, c]);
+        r += dr; c += dc;
+      }
+      if (line.length > 0 && r >= 0 && r < SIZE && c >= 0 && c < SIZE && b[r][c] === player) {
+        flips.push(...line);
+      }
+    }
+    return flips;
+  }
+
+  function getValidMoves(b, player) {
+    const moves = [];
+    for (let r = 0; r < SIZE; r++)
+      for (let c = 0; c < SIZE; c++)
+        if (b[r][c] === 0 && getFlips(b, r, c, player).length > 0)
+          moves.push([r, c]);
+    return moves;
+  }
+
+  function applyMoveCopy(b, row, col, player) {
+    const nb = b.map(r => [...r]);
+    const flips = getFlips(nb, row, col, player);
+    nb[row][col] = player;
+    for (const [r, c] of flips) nb[r][c] = player;
+    return nb;
+  }
+
+  function countPieces(b) {
+    let p1 = 0, p2 = 0;
+    for (let r = 0; r < SIZE; r++)
+      for (let c = 0; c < SIZE; c++) {
+        if (b[r][c] === 1) p1++;
+        else if (b[r][c] === 2) p2++;
+      }
+    return { 1: p1, 2: p2 };
+  }
+
+  // ===== AI =====
+  function evalBoard(b) {
+    let score = 0;
+    for (let r = 0; r < SIZE; r++)
+      for (let c = 0; c < SIZE; c++) {
+        if (b[r][c] === 2)      score += POS_WEIGHTS[r][c];
+        else if (b[r][c] === 1) score -= POS_WEIGHTS[r][c];
+      }
+    const m2 = getValidMoves(b, 2).length;
+    const m1 = getValidMoves(b, 1).length;
+    score += (m2 - m1) * 3;
+    return score;
+  }
+
+  function minimax(b, depth, alpha, beta, maximizing) {
+    const player = maximizing ? 2 : 1;
+    const moves = getValidMoves(b, player);
+    if (depth === 0 || moves.length === 0) {
+      const oppMoves = getValidMoves(b, maximizing ? 1 : 2);
+      if (moves.length === 0 && oppMoves.length === 0) {
+        const cnt = countPieces(b);
+        return (cnt[2] - cnt[1]) * 2000;
+      }
+      return evalBoard(b);
+    }
+    if (maximizing) {
+      let best = -Infinity;
+      for (const [r, c] of moves) {
+        best = Math.max(best, minimax(applyMoveCopy(b, r, c, 2), depth - 1, alpha, beta, false));
+        alpha = Math.max(alpha, best);
+        if (beta <= alpha) break;
+      }
+      return best;
+    } else {
+      let best = Infinity;
+      for (const [r, c] of moves) {
+        best = Math.min(best, minimax(applyMoveCopy(b, r, c, 1), depth - 1, alpha, beta, true));
+        beta = Math.min(beta, best);
+        if (beta <= alpha) break;
+      }
+      return best;
+    }
+  }
+
+  function getCpuMove() {
+    const moves = getValidMoves(board, 2);
+    if (moves.length === 0) return null;
+
+    if (difficulty === 'easy') {
+      return moves[Math.floor(Math.random() * moves.length)];
+    }
+
+    if (difficulty === 'normal') {
+      let best = -Infinity, bestMove = moves[0];
+      for (const [r, c] of moves) {
+        const score = getFlips(board, r, c, 2).length * 0.5 + POS_WEIGHTS[r][c];
+        if (score > best) { best = score; bestMove = [r, c]; }
+      }
+      return bestMove;
+    }
+
+    // Hard: minimax depth 5
+    let best = -Infinity, bestMove = moves[0];
+    for (const [r, c] of moves) {
+      const score = minimax(applyMoveCopy(board, r, c, 2), 4, -Infinity, Infinity, false);
+      if (score > best) { best = score; bestMove = [r, c]; }
+    }
+    return bestMove;
+  }
+
+  // ===== Rendering =====
+  function buildBoardDOM() {
+    const boardEl = document.getElementById('board');
+    boardEl.innerHTML = '';
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        cell.addEventListener('click', onCellClick);
+        boardEl.appendChild(cell);
+      }
+    }
+  }
+
+  function renderBoard() {
+    const boardEl = document.getElementById('board');
+    const validMoves = (isGameOver || isCpuThinking) ? [] : getValidMoves(board, currentPlayer);
+    const validSet = new Set(validMoves.map(([r, c]) => `${r},${c}`));
+
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        const cell = boardEl.children[r * SIZE + c];
+        const piece = cell.querySelector('.piece');
+        const val = board[r][c];
+
+        // Valid hint
+        const canPlace = validSet.has(`${r},${c}`) && val === 0;
+        cell.classList.toggle('valid-hint', canPlace);
+
+        if (val === 0) {
+          if (piece) piece.remove();
+        } else {
+          if (!piece) {
+            const p = document.createElement('div');
+            p.className = `piece player${val}`;
+            cell.appendChild(p);
+          } else if (!piece.classList.contains(`player${val}`)) {
+            piece.className = `piece player${val}`;
+          }
+        }
+      }
+    }
+    updateScoreDisplay();
+  }
+
+  function updateScoreDisplay() {
+    const cnt = countPieces(board);
+    document.getElementById('count-p1').textContent = cnt[1];
+    document.getElementById('count-p2').textContent = cnt[2];
+    document.getElementById('score-p1').classList.toggle('active-turn', currentPlayer === 1 && !isGameOver);
+    document.getElementById('score-p2').classList.toggle('active-turn', currentPlayer === 2 && !isGameOver);
+  }
+
+  function setMessage(msg) {
+    document.getElementById('turn-message').textContent = msg;
+  }
+
+  function getName(player) {
+    return player === 1
+      ? document.getElementById('p1-name').textContent
+      : document.getElementById('p2-name').textContent;
+  }
+
+  // ===== Animations =====
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async function animatePlacePiece(row, col, player) {
+    const cell = document.getElementById('board').children[row * SIZE + col];
+    cell.classList.remove('valid-hint');
+    const p = document.createElement('div');
+    p.className = `piece player${player} just-placed`;
+    cell.appendChild(p);
+    await sleep(60);
+  }
+
+  async function animateFlipPieces(flips, player) {
+    if (flips.length === 0) return;
+    const boardEl = document.getElementById('board');
+
+    // Add staggered flip animation
+    const promises = flips.map(([r, c], i) => new Promise(resolve => {
+      const delay = i * 30;
+      setTimeout(() => {
+        const cell = boardEl.children[r * SIZE + c];
+        const piece = cell.querySelector('.piece');
+        if (!piece) { resolve(); return; }
+
+        // Phase 1: flip out
+        piece.classList.add('flip-out');
+        setTimeout(() => {
+          // Change color at the midpoint (scaleX=0)
+          piece.className = `piece player${player} flip-in`;
+          setTimeout(() => {
+            piece.classList.remove('flip-in');
+            resolve();
+          }, 180);
+        }, 180);
+      }, delay);
+    }));
+
+    await Promise.all(promises);
+    await sleep(60);
+  }
+
+  // ===== Pass Overlay =====
+  async function showPassMessage(player) {
+    const name = getName(player);
+    document.getElementById('pass-text').textContent = `${name} はおけるばしょがない！パス！`;
+    const overlay = document.getElementById('pass-overlay');
+    overlay.classList.add('show');
+    await sleep(1400);
+    overlay.classList.remove('show');
+  }
+
+  // ===== Game Flow =====
+  async function onCellClick(e) {
+    if (isGameOver || isAnimating || isCpuThinking) return;
+    if (gameMode === 'vs-cpu' && currentPlayer === 2) return;
+
+    const row = parseInt(e.currentTarget.dataset.r);
+    const col = parseInt(e.currentTarget.dataset.c);
+    const flips = getFlips(board, row, col, currentPlayer);
+    if (flips.length === 0) return;
+
+    await executeMove(row, col, currentPlayer);
+  }
+
+  async function executeMove(row, col, player) {
+    isAnimating = true;
+
+    // Apply to state
+    const flips = getFlips(board, row, col, player);
+    board[row][col] = player;
+    for (const [r, c] of flips) board[r][c] = player;
+
+    // Animate
+    await animatePlacePiece(row, col, player);
+    await animateFlipPieces(flips, player);
+    renderBoard();
+
+    isAnimating = false;
+    await advanceTurn();
+  }
+
+  async function advanceTurn() {
+    const next = currentPlayer === 1 ? 2 : 1;
+    const nextMoves = getValidMoves(board, next);
+    const curMoves  = getValidMoves(board, currentPlayer);
+
+    if (nextMoves.length > 0) {
+      currentPlayer = next;
+    } else if (curMoves.length > 0) {
+      // Next player must pass
+      await showPassMessage(next);
+      // currentPlayer stays the same
+    } else {
+      // Both players have no moves → game over
+      endGame();
+      return;
+    }
+
+    renderBoard();
+
+    if (!isGameOver) {
+      if (gameMode === 'vs-cpu' && currentPlayer === 2) {
+        await runCpuTurn();
+      } else {
+        setMessage(`${getName(currentPlayer)} のばん ✨`);
+      }
+    }
+  }
+
+  async function runCpuTurn() {
+    isCpuThinking = true;
+    renderBoard(); // Remove valid-hint dots while CPU thinks
+
+    const thinkMs = difficulty === 'easy' ? 450 : difficulty === 'normal' ? 750 : 1100;
+    setMessage('コンピュータが かんがえています… 🤔');
+    await sleep(thinkMs);
+
+    isCpuThinking = false;
+    const move = getCpuMove();
+    if (move) {
+      await executeMove(move[0], move[1], 2);
+    }
+  }
+
+  // ===== Game Over =====
+  function endGame() {
+    isGameOver = true;
+    renderBoard();
+
+    const cnt = countPieces(board);
+    let emoji, text, color;
+
+    if (cnt[1] > cnt[2]) {
+      emoji = '🎉'; text = `${getName(1)} のかち！`;
+      color = '#ff8fab';
+      if (gameMode === 'vs-cpu') launchConfetti();
+    } else if (cnt[2] > cnt[1]) {
+      emoji = gameMode === 'vs-cpu' ? '😢' : '🎉';
+      text = `${getName(2)} のかち！`;
+      color = '#74b9ff';
+      if (gameMode === 'vs-human') launchConfetti();
+    } else {
+      emoji = '🤝'; text = 'ひきわけ！'; color = '#ffd700';
+    }
+
+    document.getElementById('winner-emoji').textContent = emoji;
+    const wt = document.getElementById('winner-text');
+    wt.textContent = text;
+    wt.style.color = color;
+    document.getElementById('final-scores').innerHTML =
+      `🔴 ${getName(1)}: <strong>${cnt[1]}まい</strong><br>🔵 ${getName(2)}: <strong>${cnt[2]}まい</strong>`;
+
+    setTimeout(() => {
+      document.getElementById('game-over-overlay').classList.add('show');
+    }, 600);
+  }
+
+  function launchConfetti() {
+    const colors = ['#ff4757','#2ed573','#1e90ff','#ffd700','#ff6b81','#a29bfe','#ffeaa7','#fd79a8'];
+    for (let i = 0; i < 70; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'confetti';
+        el.style.cssText = `
+          left: ${Math.random() * 100}vw;
+          top: -30px;
+          width: ${7 + Math.random() * 9}px;
+          height: ${7 + Math.random() * 9}px;
+          background: ${colors[Math.floor(Math.random() * colors.length)]};
+          border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+          animation-duration: ${1.6 + Math.random() * 2.2}s;
+          animation-delay: ${Math.random() * 0.6}s;
+        `;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 5000);
+      }, i * 25);
+    }
+  }
+
+  // ===== Init / Start =====
+  function initGame() {
+    board = createBoard();
+    currentPlayer = 1;
+    isGameOver = false;
+    isAnimating = false;
+    isCpuThinking = false;
+
+    if (gameMode === 'vs-cpu') {
+      document.getElementById('p1-name').textContent = 'あなた';
+      document.getElementById('p2-name').textContent = 'コンピュータ';
+    } else {
+      document.getElementById('p1-name').textContent = 'プレイヤー1';
+      document.getElementById('p2-name').textContent = 'プレイヤー2';
+    }
+
+    buildBoardDOM();
+    renderBoard();
+    setMessage(`${getName(1)} からはじめよう！ 🎮`);
+  }
+
+  window.startOthello = function() {
+    const modeBtn = document.querySelector('#opt-mode .opt-btn.active');
+    const diffBtn = document.querySelector('#opt-difficulty .opt-btn.active');
+    gameMode   = modeBtn ? modeBtn.dataset.value : 'vs-cpu';
+    difficulty = diffBtn ? diffBtn.dataset.value : 'normal';
+
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('game-over-overlay').classList.remove('show');
+    initGame();
+  };
+
+  window.restartOthello = function() {
+    document.getElementById('game-over-overlay').classList.remove('show');
+    initGame();
+  };
+
+  window.showOthelloMenu = function() {
+    document.getElementById('game-over-overlay').classList.remove('show');
+    document.getElementById('start-screen').classList.remove('hidden');
+  };
+
+  // ===== Option Buttons Setup =====
+  function setupOptButtons() {
+    document.querySelectorAll('.opt-group').forEach(group => {
+      group.querySelectorAll('.opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          group.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          // Show/hide difficulty row based on mode selection
+          const modeActive = document.querySelector('#opt-mode .opt-btn.active');
+          if (modeActive) {
+            document.getElementById('difficulty-row').style.display =
+              modeActive.dataset.value === 'vs-cpu' ? 'flex' : 'none';
+          }
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupOptButtons);
+  } else {
+    setupOptButtons();
+  }
+})();
+</script>
+
+</body>
+</html>
